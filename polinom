@@ -1,0 +1,62 @@
+import turtle
+x = [5, 10, 15, 20, 25, 30, 35, 40]
+y = [40, 30, 25, 40, 18, 20, 22, 15]
+def lagrange_interpolation(xi, yi, x):
+    def L(k, x):
+        result = 1
+        for i in range(len(xi)):
+            if i != k:
+                result *= (x - xi[i]) / (xi[k] - xi[i])
+        return result
+    return sum(yi[k] * L(k, x) for k in range(len(xi)))
+def newton_interpolation(xi, yi, x):
+    n = len(xi)
+    divided_diff = [[0 for _ in range(n)] for _ in range(n)]
+    for i in range(n):
+        divided_diff[i][0] = yi[i]
+    for j in range(1, n):
+        for i in range(n - j):
+            divided_diff[i][j] = (divided_diff[i + 1][j - 1] - divided_diff[i][j - 1]) / (xi[i + j] - xi[i])
+    def N(x):
+        result = divided_diff[0][0]
+        prod = 1.0
+        for j in range(1, n):
+            prod *= (x - xi[j - 1])
+            result += divided_diff[0][j] * prod
+        return result
+    return N(x)
+def test_interpolation():
+    test_points = [7, 12, 18, 22, 28, 33, 38]
+    print("Testing Lagrange Interpolation:")
+    for tp in test_points:
+        interpolated_value = lagrange_interpolation(x, y, tp)
+        print(f"f({tp}) = {interpolated_value:.4f}")
+    print("\nTesting Newton Interpolation:")
+    for tp in test_points:
+        interpolated_value = newton_interpolation(x, y, tp)
+        print(f"f({tp}) = {interpolated_value:.4f}")
+def plot_with_turtle(x_vals, y_vals, label, color):
+    turtle.penup()
+    turtle.goto(x_vals[0], y_vals[0])
+    turtle.pendown()
+    turtle.color(color)
+    turtle.write(label, font=("Arial", 12, "normal"))
+    for x, y in zip(x_vals, y_vals):
+        turtle.goto(x, y)
+def main():
+    turtle.speed(0)
+    turtle.setworldcoordinates(0, 0, 45, 50)  # Set coordinate system
+    turtle.hideturtle()
+    turtle.penup()
+    for x_i, y_i in zip(x, y):
+        turtle.goto(x_i, y_i)
+        turtle.dot(5, "black")
+    x_vals = [i for i in range(5, 41)]
+    lagrange_vals = [lagrange_interpolation(x, y, xi) for xi in x_vals]
+    newton_vals = [newton_interpolation(x, y, xi) for xi in x_vals]
+    plot_with_turtle(x_vals, lagrange_vals, "Lagrange Interpolation", "red")
+    plot_with_turtle(x_vals, newton_vals, "Newton Interpolation", "blue")
+    turtle.done()
+
+test_interpolation()
+main()
